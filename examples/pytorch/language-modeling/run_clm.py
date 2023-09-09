@@ -33,7 +33,7 @@ from typing import Optional
 import datasets
 import evaluate
 import torch
-from datasets import load_dataset
+from datasets import load_dataset,load_from_disk
 
 import transformers
 from transformers import (
@@ -319,7 +319,7 @@ def main():
     # download the dataset.
     if data_args.dataset_name is not None:
         # Downloading and loading a dataset from the hub.
-        raw_datasets = load_dataset(
+        raw_datasets = load_from_disk(
             data_args.dataset_name,
             data_args.dataset_config_name,
             cache_dir=model_args.cache_dir,
@@ -327,7 +327,7 @@ def main():
             streaming=data_args.streaming,
         )
         if "validation" not in raw_datasets.keys():
-            raw_datasets["validation"] = load_dataset(
+            raw_datasets["validation"] = load_from_disk(
                 data_args.dataset_name,
                 data_args.dataset_config_name,
                 split=f"train[:{data_args.validation_split_percentage}%]",
@@ -335,7 +335,7 @@ def main():
                 token=model_args.token,
                 streaming=data_args.streaming,
             )
-            raw_datasets["train"] = load_dataset(
+            raw_datasets["train"] = load_from_disk(
                 data_args.dataset_name,
                 data_args.dataset_config_name,
                 split=f"train[{data_args.validation_split_percentage}%:]",
@@ -358,7 +358,7 @@ def main():
         if extension == "txt":
             extension = "text"
             dataset_args["keep_linebreaks"] = data_args.keep_linebreaks
-        raw_datasets = load_dataset(
+        raw_datasets = load_from_disk(
             extension,
             data_files=data_files,
             cache_dir=model_args.cache_dir,
@@ -367,7 +367,7 @@ def main():
         )
         # If no validation data is there, validation_split_percentage will be used to divide the dataset.
         if "validation" not in raw_datasets.keys():
-            raw_datasets["validation"] = load_dataset(
+            raw_datasets["validation"] = load_from_disk(
                 extension,
                 data_files=data_files,
                 split=f"train[:{data_args.validation_split_percentage}%]",
@@ -375,7 +375,7 @@ def main():
                 token=model_args.token,
                 **dataset_args,
             )
-            raw_datasets["train"] = load_dataset(
+            raw_datasets["train"] = load_from_disk(
                 extension,
                 data_files=data_files,
                 split=f"train[{data_args.validation_split_percentage}%:]",
